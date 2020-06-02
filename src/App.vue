@@ -1,32 +1,48 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
+  <div id="app" v-cloak>
+    <component :is="layout">
+      <router-view />
+    </component>
+    <iv-loading :active="isLoading" />
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+import { mapState } from 'vuex';
+import DefaultLayout from '@/layouts/default';
+import { IvLoading } from '@/components/interface';
 
-#nav {
-  padding: 30px;
+export default {
+  name: 'App',
+  components: {
+    DefaultLayout,
+    IvLoading
+  },
+  data() {
+    return {
+      layout: ''
+    }
+  },
+  computed: {
+    ...mapState('global', ['isLoading'])
+  },
+  created() {
+    this.setLayout();
+  },
+  methods: {
+    setLayout() {
+      const availableLayouts = ['default'];
+      let currentLayout = this.$route.meta.layout || availableLayouts[0];
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+      if (!availableLayouts.includes(currentLayout)) {
+        currentLayout = availableLayouts[0];
+      }
+      this.layout = `${currentLayout}-layout`;
     }
   }
 }
+</script>
+
+<style lang="scss">
+  @import "~@/assets/styles/index";
 </style>
